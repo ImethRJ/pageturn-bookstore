@@ -93,25 +93,67 @@ On startup, [DataLoader.java](file:///c:/productmanagement/src/main/java/com/exa
 
 ---
 
-## 🧪 Testing
+## 🧪 QA & Test Automation Strategy
 
-### 1. Run Backend JUnit Tests
-Execute backend integration tests verifying repository queries, transaction rollbacks, and controller mappings:
+This project follows a strict multi-tier testing strategy to ensure security boundary enforcement, data integrity, and atomic transaction behaviors.
+
+### 🔍 QA Scenarios Covered
+
+#### 1. Security & RBAC Guards
+* **Admin Privilege Restriction**: Checks that unauthenticated sessions or normal `USER` accounts receive `403 Forbidden` errors when attempting to create/delete books, modify inventory levels, access the general order list, or manage user accounts.
+* **Authentication States**: Validates that checkouts and personal order histories require active HTTP sessions, returning `401 Unauthorized` when accessed anonymously.
+
+#### 2. Validation Boundaries
+* **Empty Payload Failures**: Sends request maps missing mandatory properties (e.g. title, author, price) and asserts response returns `400 Bad Request` with structured field validation errors.
+* **Category Auto-Resolution**: Verifies that when a book is created, the system checks case-insensitively for an existing category name and references it, creating a new category *only* if it is unique. This checks H2 DB unique index constraint boundaries.
+
+#### 3. Checkout Concurrency & Transactional Rollbacks
+* **Atomic Deductions**: Verifies that successful checkouts deduct stock correctly (e.g. requesting 3 Hobbit copies on a stock of 10 decreases inventory to 7).
+* **Rollback Safety**: Tests checkouts containing multiple books where one book has insufficient stock. It asserts that:
+  1. The checkout throws `InsufficientStockException`.
+  2. The database transaction rolls back *completely* (no order records are saved, and the stock of the available book remains unmodified).
+
+---
+
+## 💻 Running QA Automation Suites
+
+### 1. Integration & API Unit Tests (JUnit 5)
+Run the backend test suite verifying Spring Boot controller interceptors, database integrity, and rollback transactional boundaries:
 
 ```bash
+# Windows PowerShell
+$env:JAVA_HOME="C:\Users\imeth\.jdks\ms-25.0.3"
 .\mvnw clean test
 ```
 
-### 2. Run Playwright E2E Tests
-To run E2E flows automating user sign-up, search, cart additions, and checkout:
+### 2. End-to-End E2E Tests (Playwright)
+The Playwright E2E suite simulates real reader interaction:
+1. Starts the headless browser.
+2. Triggers the sign-up flow to register a fresh, uniquely-named reader account.
+3. Tests catalog loading, performs catalog queries, adds items to the shopping cart, and clicks checkout.
+4. Asserts order confirmation cards are displayed with generated order IDs.
 
-1. Ensure both backend and frontend servers are running (`localhost:8080` and `localhost:5173`).
-2. Run Playwright tests from the `/frontend` directory:
-   ```bash
-   cd frontend
-   npx playwright install --with-deps
-   npx playwright test
-   ```
+```bash
+# Navigate to frontend folder
+cd frontend
 
-### 3. Bruno Automated API Tests
-API test collections are available under the `/bruno` folder. Open Bruno and import the collection folder to manually invoke and check HTTP response codes for book creation, validation errors, and search operations.
+# Install Playwright dependencies (first-time only)
+npx playwright install --with-deps
+
+# Run E2E tests
+npx playwright test
+```
+
+*To view the E2E HTML visual report after runs, execute: `npx playwright show-report`*
+
+### 3. Automated API Collection (Bruno)
+API testing endpoints are saved under the [/bruno](file:///c:/productmanagement/bruno) directory:
+* **`Create Book - Invalid Payload.bru`**: Validates `400 Bad Request` validation outputs.
+* **`Get Book - Not Found.bru`**: Validates `404 Not Found` responses.
+* **`Search Books - Successful.bru`**: Validates query response formats.
+
+**To run via Bruno CLI:**
+```bash
+npm install -g @usebruno/cli
+bru run bruno/
+```
