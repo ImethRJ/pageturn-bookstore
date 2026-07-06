@@ -2,6 +2,8 @@ package com.example.productmanagement.controller;
 
 import com.example.productmanagement.entity.Book;
 import com.example.productmanagement.service.BookService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,4 +31,11 @@ public class BookController {
     public ResponseEntity<Book> getBookById(@PathVariable Long id) {
         return ResponseEntity.ok(bookService.getBookById(id));
     }
+
+    @PostMapping
+public ResponseEntity<Book> createBook(@Valid @RequestBody Book book) {
+    // Calls service to persist the book and returns 201 Created
+    Book createdBook = bookService.createBook(book); 
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
+}
 }

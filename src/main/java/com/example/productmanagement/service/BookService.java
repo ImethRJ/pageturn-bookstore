@@ -33,4 +33,9 @@ public class BookService {
         }
         return bookRepository.searchBooks(query.trim());
     }
+
+    @Transactional
+    public Book createBook(Book book) {
+        return bookRepository.save(book);
+    }
 }
