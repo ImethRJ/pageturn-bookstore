@@ -29,6 +29,14 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice = BigDecimal.ZERO;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"password", "role"})
+    private User user;
+
+    @Column(nullable = false)
+    private String orderStatus = "PENDING";
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties("order")
     private List<OrderItem> orderItems = new ArrayList<>();
@@ -72,4 +80,10 @@ public class Order {
         this.orderItems = orderItems; 
         calculateTotalPrice();
     }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+
+    public String getOrderStatus() { return orderStatus; }
+    public void setOrderStatus(String orderStatus) { this.orderStatus = orderStatus; }
 }

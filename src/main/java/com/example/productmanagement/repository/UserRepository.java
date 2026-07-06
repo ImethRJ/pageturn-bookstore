@@ -1,12 +1,11 @@
 package com.example.productmanagement.repository;
 
-import com.example.productmanagement.entity.Order;
 import com.example.productmanagement.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, Long> {
-    List<Order> findByUser(User user);
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(String username);
 }

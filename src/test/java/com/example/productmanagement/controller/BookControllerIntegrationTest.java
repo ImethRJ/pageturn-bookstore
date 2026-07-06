@@ -41,6 +41,8 @@ class BookControllerIntegrationTest {
     void setUp() {
         bookRepository.deleteAll();
         categoryRepository.deleteAll();
+        bookRepository.flush();
+        categoryRepository.flush();
 
         Category category = new Category("Fiction");
         category = categoryRepository.save(category);

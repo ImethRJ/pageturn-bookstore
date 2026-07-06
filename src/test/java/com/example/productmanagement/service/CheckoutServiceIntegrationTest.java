@@ -5,10 +5,13 @@ import com.example.productmanagement.dto.CheckoutRequest;
 import com.example.productmanagement.entity.Book;
 import com.example.productmanagement.entity.Category;
 import com.example.productmanagement.entity.Order;
+import com.example.productmanagement.entity.Role;
+import com.example.productmanagement.entity.User;
 import com.example.productmanagement.exception.InsufficientStockException;
 import com.example.productmanagement.repository.BookRepository;
 import com.example.productmanagement.repository.CategoryRepository;
 import com.example.productmanagement.repository.OrderRepository;
+import com.example.productmanagement.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +40,21 @@ class CheckoutServiceIntegrationTest {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private Book book1;
     private Book book2;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
         orderRepository.deleteAll();
         bookRepository.deleteAll();
         categoryRepository.deleteAll();
+        userRepository.deleteAll();
+
+        testUser = userRepository.save(new User("testuser", "testpassword", Role.USER));
 
         Category category = new Category("Fiction");
         category = categoryRepository.save(category);
@@ -80,7 +90,7 @@ class CheckoutServiceIntegrationTest {
                 )
         );
 
-        Order order = checkoutService.checkout(request);
+        Order order = checkoutService.checkout(request, testUser);
 
         // Assert Order and OrderItems details
         assertThat(order).isNotNull();
@@ -109,7 +119,7 @@ class CheckoutServiceIntegrationTest {
         );
 
         assertThrows(InsufficientStockException.class, () -> {
-            checkoutService.checkout(request);
+            checkoutService.checkout(request, testUser);
         });
 
         // Assert Book Stock has NOT changed (Transaction rolled back completely)

@@ -5,6 +5,7 @@ import com.example.productmanagement.dto.CheckoutRequest;
 import com.example.productmanagement.entity.Book;
 import com.example.productmanagement.entity.Order;
 import com.example.productmanagement.entity.OrderItem;
+import com.example.productmanagement.entity.User;
 import com.example.productmanagement.exception.BookNotFoundException;
 import com.example.productmanagement.exception.InsufficientStockException;
 import com.example.productmanagement.repository.BookRepository;
@@ -26,8 +27,9 @@ public class CheckoutService {
       }
 
       @Transactional
-      public Order checkout(CheckoutRequest request) {
+      public Order checkout(CheckoutRequest request, User user) {
           Order order = new Order(request.customerName(), LocalDateTime.now());
+          order.setUser(user);
 
           for (CartItemDto item : request.items()) {
               Book book = bookRepository.findById(item.bookId())
