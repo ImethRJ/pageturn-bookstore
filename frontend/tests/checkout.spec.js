@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Bookstore Cart & Checkout Flows', () => {
 
@@ -40,7 +40,7 @@ test.describe('Bookstore Cart & Checkout Flows', () => {
     await addToCartButton.click();
 
     // 4. Verify that the shopping cart sidebar lists 'The Hobbit'
-    const cartItem = page.locator('text=The Hobbit');
+    const cartItem = page.locator('section:has-text("Your Cart") >> text=The Hobbit');
     await expect(cartItem).toBeVisible();
 
     // 5. Click the 'Submit Checkout' button
