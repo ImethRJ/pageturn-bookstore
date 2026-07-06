@@ -1,0 +1,31 @@
+meta {
+  name: Search Books - Success
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/books
+  body: none
+  auth: none
+}
+
+params:query {
+  search: Hobbit
+}
+
+assert {
+  res.status: 200
+  res.body: isArray
+}
+
+tests {
+  test("should return 200 OK and an array of books matching search", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(data).to.be.an('array');
+    if (data.length > 0) {
+      expect(data[0].title).to.include("Hobbit");
+    }
+  });
+}

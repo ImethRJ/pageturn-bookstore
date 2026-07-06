@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Product Management API Tests",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

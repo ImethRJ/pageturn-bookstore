@@ -1,0 +1,24 @@
+meta {
+  name: Get Book - Not Found
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/books/9999
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: 404
+}
+
+tests {
+  test("should return 404 Not Found for non-existent book", function() {
+    expect(res.getStatus()).to.equal(404);
+    const data = res.getBody();
+    expect(data.status).to.equal(404);
+    expect(data.message).to.include("Book with ID 9999 not found");
+  });
+}

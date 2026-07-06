@@ -1,0 +1,35 @@
+meta {
+  name: Create Book - Invalid Payload
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/books
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "",
+    "author": "",
+    "isbn": "invalid-isbn-format",
+    "price": -10.00,
+    "stockQuantity": -5,
+    "category": null
+  }
+}
+
+assert {
+  res.status: 400
+}
+
+tests {
+  test("should return 400 Bad Request due to validation constraints", function() {
+    expect(res.getStatus()).to.equal(400);
+    const data = res.getBody();
+    // Assuming validation error details are returned
+    expect(data).to.exist;
+  });
+}
